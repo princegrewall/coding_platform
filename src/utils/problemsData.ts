@@ -1,4 +1,3 @@
-
 export interface TestCase {
   input: string;
   output: string;
@@ -204,7 +203,7 @@ An input string is valid if:
     `,
     constraints: [
       '1 <= s.length <= 10^4',
-      's consists of parentheses only \'()[]{}'.',
+      "s consists of parentheses only '()[]{}'.",
     ],
     examples: [
       {
@@ -220,7 +219,7 @@ An input string is valid if:
       {
         input: 's = "(]"',
         output: 'false',
-        explanation: 'The parentheses don\'t match.',
+        explanation: "The parentheses don't match.",
       },
     ],
     testCases: [
