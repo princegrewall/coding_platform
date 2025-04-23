@@ -28,7 +28,7 @@ const Login = () => {
             <div className="flex justify-center mb-2">
               <Code size={32} className="text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold">Welcome back</h2>
+            <h2 className="text-2xl font-semibold">Welcome back to our platform</h2>
             <p className="text-sm text-muted-foreground">
               Log in to your account to continue
             </p>
