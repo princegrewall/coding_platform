@@ -66,16 +66,32 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ problem, onSolve, isContestActi
         ? problem.testCases[0].input 
         : '';
       
+      // Log the complete request details
+      const requestPayload = {
+        code,
+        language: 'cpp',
+        input: testInput
+      };
+      
+      console.log('\n=== Code Execution Request ===');
+      console.log('Code:', code);
+      console.log('Input:', testInput);
+      console.log('Language:', 'cpp');
+      
       // Make actual API call to run the code
       const response = await axios.post(
         `${API_URL}/submissions/run`,
-        {
-          code,
-          language,
-          input: testInput
-        },
-        { withCredentials: true }
+        requestPayload,
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
+      
+      console.log('\n=== Server Response ===');
+      console.log('Response data:', response.data);
       
       if (response.data.success) {
         setConsoleOutput(`Compiling your C++ solution...
@@ -92,19 +108,47 @@ Process finished with exit code 0`);
           duration: 3000,
         });
       } else {
-        setConsoleOutput(`Execution failed: ${response.data.message || 'Unknown error'}
-${response.data.error || ''}`);
+        const errorMessage = response.data.message || response.data.error || 'Unknown error';
+        console.log('\nError in response:', {
+          message: response.data.message,
+          error: response.data.error,
+          success: response.data.success
+        });
+        
+        setConsoleOutput(`Execution failed: ${errorMessage}`);
         
         toast.error('Execution failed', {
-          description: response.data.message || 'Failed to run your code',
+          description: errorMessage,
           duration: 3000,
         });
       }
     } catch (error: any) {
+      console.error('\n=== Error Details ===');
       console.error('Error running code:', error);
-      setConsoleOutput(`Execution error: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+      
+      // Detailed error logging
+      console.log('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        code: error.code
+      });
+      
+      // Extract error message from response
+      let errorMessage = 'Unknown error';
+      if (error.response?.data) {
+        errorMessage = error.response.data.message || error.response.data.error || error.message;
+        console.log('Server error response:', error.response.data);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setConsoleOutput(`Execution error: ${errorMessage}
+${error.response?.data?.error || ''}`);
+      
       toast.error('Execution failed', {
-        description: error.response?.data?.message || error.message || 'An error occurred',
+        description: errorMessage,
         duration: 3000,
       });
     } finally {
