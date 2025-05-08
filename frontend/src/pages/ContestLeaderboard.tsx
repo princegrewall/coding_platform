@@ -37,22 +37,47 @@ const ContestLeaderboard: React.FC = () => {
     const fetchLeaderboard = async () => {
       try {
         setLoading(true);
+        console.log('Fetching leaderboard for contest:', contestId);
+        console.log('API URL:', `${API_URL}/leaderboard/contest/${contestId}`);
+        
+        // Get the stored user data
+        const userStr = localStorage.getItem('codePlatformUser');
+        if (!userStr) {
+          console.error('No user data found in localStorage');
+          navigate('/login');
+          return;
+        }
+
         const response = await axios.get(`${API_URL}/leaderboard/contest/${contestId}`, {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
+        
+        console.log('Leaderboard response:', response.data);
         
         if (response.data.success) {
           setLeaderboardData(response.data);
         } else {
-          setError('Failed to load leaderboard');
+          console.error('Failed to load leaderboard:', response.data);
+          setError('Failed to load leaderboard data');
         }
       } catch (err: any) {
         console.error('Error fetching leaderboard:', err);
-        setError(err.response?.data?.message || 'An error occurred while fetching the leaderboard');
+        console.error('Error details:', {
+          status: err.response?.status,
+          message: err.response?.data?.message,
+          error: err.message
+        });
         
-        // If not authorized, redirect to login
         if (err.response?.status === 401) {
+          console.log('Unauthorized, redirecting to login');
+          // Clear any stale auth data
+          localStorage.removeItem('codePlatformUser');
           navigate('/login');
+        } else {
+          setError(err.response?.data?.message || 'An error occurred while fetching the leaderboard');
         }
       } finally {
         setLoading(false);
@@ -61,6 +86,10 @@ const ContestLeaderboard: React.FC = () => {
 
     if (contestId) {
       fetchLeaderboard();
+    } else {
+      console.error('No contest ID provided');
+      setError('No contest ID provided');
+      setLoading(false);
     }
   }, [contestId, navigate, API_URL]);
 
@@ -125,7 +154,7 @@ const ContestLeaderboard: React.FC = () => {
             </div>
           </div>
 
-          <LeaderboardTable 
+          <LeaderboardTable
             leaderboard={leaderboardData.leaderboard}
             penaltyPerWrongSubmission={leaderboardData.penaltyPerWrongSubmission}
           />

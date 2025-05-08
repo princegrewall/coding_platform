@@ -7,13 +7,95 @@ const unlinkAsync = promisify(fs.unlink);
 
 // Configuration
 const MAX_EXECUTION_TIME = 5000; // 5 seconds timeout
-const MAX_MEMORY = 512 * 1024 * 1024; // 512MB memory limit
 
 // Helper function to create a unique filename
 const getUniqueFilename = () => {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 10000);
   return `temp_${timestamp}_${random}`;
+};
+
+// Helper function to check if C++ code handles input properly
+const checkCppInputHandling = (code) => {
+  console.log('\n=== Starting Code Validation ===');
+  console.log('Raw code:', code);
+  
+  const normalizedCode = code.toLowerCase();
+  console.log('\nNormalized code:', normalizedCode);
+  
+  // Check for basic input handling
+  const hasBasicInput = /cin\s*>>|getline\s*\(|scanf\s*\(/.test(normalizedCode);
+  console.log('\nInput handling check:');
+  console.log('- Has basic input:', hasBasicInput);
+  console.log('- Input patterns found:', normalizedCode.match(/cin\s*>>|getline\s*\(|scanf\s*\(/g));
+  
+  // Check for proper input stream setup
+  const hasProperSetup = /#include\s*<iostream>|#include\s*<cstdio>/.test(normalizedCode);
+  console.log('\nSetup check:');
+  console.log('- Has proper setup:', hasProperSetup);
+  console.log('- Headers found:', normalizedCode.match(/#include\s*<[^>]+>/g));
+  
+  // Check for proper main function
+  const hasMainFunction = /int\s+main\s*\(/.test(normalizedCode);
+  console.log('\nMain function check:');
+  console.log('- Has main function:', hasMainFunction);
+  console.log('- Main function found:', normalizedCode.match(/int\s+main\s*\([^)]*\)/g));
+
+  // Improved variable declaration detection - now handles multiple variables and spaces
+  const variablePattern = /(int|string|char|double|float|long)\s+[\w\s,]+;/g;
+  const variableMatches = normalizedCode.match(variablePattern) || [];
+  const hasVariableDeclarations = variableMatches.length > 0;
+  
+  console.log('\nVariable declaration check:');
+  console.log('- Variable pattern:', variablePattern);
+  console.log('- Variables found:', variableMatches);
+  console.log('- Has variable declarations:', hasVariableDeclarations);
+
+  // Log the entire validation process
+  console.log('\nValidation steps:');
+  console.log('1. Headers check:', hasProperSetup ? 'PASS' : 'FAIL');
+  console.log('2. Main function check:', hasMainFunction ? 'PASS' : 'FAIL');
+  console.log('3. Input handling check:', hasBasicInput ? 'PASS' : 'FAIL');
+  console.log('4. Variable declaration check:', hasVariableDeclarations ? 'PASS' : 'FAIL');
+
+  // Basic validation
+  if (!hasProperSetup) {
+    console.log('\nValidation failed: Missing proper setup');
+    return { 
+      valid: false, 
+      error: "Missing required header. Please include <iostream> or <cstdio> for input handling." 
+    };
+  }
+
+  if (!hasMainFunction) {
+    console.log('\nValidation failed: Missing main function');
+    return { 
+      valid: false, 
+      error: "Missing main function. Your code must have an int main() function." 
+    };
+  }
+
+  // If there's no input handling, we don't need to check for variables
+  if (!hasBasicInput) {
+    console.log('\nValidation failed: No input handling found');
+    return { 
+      valid: false, 
+      error: "No input handling found. Please use cin, getline, or scanf to read input." 
+    };
+  }
+
+  // If we have input handling but no variables, that's an error
+  if (hasBasicInput && !hasVariableDeclarations) {
+    console.log('\nValidation failed: No variables declared for input');
+    console.log('Input handling found but no variables declared');
+    return { 
+      valid: false, 
+      error: "No variables declared for input. Please declare variables to store input values." 
+    };
+  }
+
+  console.log('\nValidation passed successfully');
+  return { valid: true };
 };
 
 // Execute code with timeout
@@ -52,162 +134,84 @@ const executeWithTimeout = (spawnProcess, timeout) => {
   });
 };
 
-// Run C++ code
-const runCpp = async (code, input, timeout = MAX_EXECUTION_TIME) => {
-  const uniqueName = getUniqueFilename();
-  const filePath = path.join(__dirname, `${uniqueName}.cpp`);
-  const exePath = path.join(__dirname, `${uniqueName}.exe`);
-  
+// Main function to run C++ code
+const runCode = async (code, input) => {
   try {
-    // Write code to file
-    await writeFileAsync(filePath, code);
-    
-    // Compile code
-    const compileResult = await new Promise((resolve, reject) => {
-      exec(`g++ "${filePath}" -o "${exePath}" -std=c++17`, (error, stdout, stderr) => {
-        if (error || stderr) {
-          reject({ verdict: 'Compilation Error', error: stderr || error.message });
-        } else {
-          resolve(stdout);
-        }
-      });
-    });
-    
-    // Run the executable
-    const child = spawn(`"${exePath}"`, { shell: true });
-    
-    // Write input to stdin if provided
-    if (input) {
-      child.stdin.write(input);
-      child.stdin.end();
-    }
-    
-    // Execute with timeout
-    const result = await executeWithTimeout(child, timeout);
-    return result.trim();
-  } finally {
-    // Cleanup
-    try {
-      if (fs.existsSync(filePath)) await unlinkAsync(filePath);
-      if (fs.existsSync(exePath)) await unlinkAsync(exePath);
-    } catch (error) {
-      console.error('Error during cleanup:', error);
-    }
-  }
-};
+    console.log('\n=== Starting Code Execution ===');
+    console.log('Input provided:', input);
+    console.log('Code to run:', code);
 
-// Run Python code
-const runPython = async (code, input, timeout = MAX_EXECUTION_TIME) => {
-  const uniqueName = getUniqueFilename();
-  const filePath = path.join(__dirname, `${uniqueName}.py`);
-  
-  try {
-    // Write code to file
-    await writeFileAsync(filePath, code);
-    
-    // Run Python script
-    const child = spawn('python', [filePath]);
-    
-    // Write input to stdin if provided
-    if (input) {
-      child.stdin.write(input);
-      child.stdin.end();
-    }
-    
-    // Execute with timeout
-    const result = await executeWithTimeout(child, timeout);
-    return result.trim();
-  } finally {
-    // Cleanup
-    try {
-      if (fs.existsSync(filePath)) await unlinkAsync(filePath);
-    } catch (error) {
-      console.error('Error during cleanup:', error);
-    }
-  }
-};
-
-// Run Java code
-const runJava = async (code, input, timeout = MAX_EXECUTION_TIME) => {
-  // Extract the class name (must be public class)
-  const classNameRegex = /public\s+class\s+([a-zA-Z_$][a-zA-Z\d_$]*)/;
-  const match = code.match(classNameRegex);
-  
-  if (!match) {
-    throw { verdict: 'Compilation Error', error: 'No public class found in Java code' };
-  }
-  
-  const className = match[1];
-  const uniqueName = getUniqueFilename();
-  const dirPath = path.join(__dirname, uniqueName);
-  const filePath = path.join(dirPath, `${className}.java`);
-  
-  try {
-    // Create directory
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath);
-    }
-    
-    // Write code to file
-    await writeFileAsync(filePath, code);
-    
-    // Compile Java code
-    const compileResult = await new Promise((resolve, reject) => {
-      exec(`javac "${filePath}"`, { cwd: dirPath }, (error, stdout, stderr) => {
-        if (error || stderr) {
-          reject({ verdict: 'Compilation Error', error: stderr || error.message });
-        } else {
-          resolve(stdout);
-        }
-      });
-    });
-    
-    // Run Java program
-    const child = spawn('java', [className], { cwd: dirPath });
-    
-    // Write input to stdin if provided
-    if (input) {
-      child.stdin.write(input);
-      child.stdin.end();
-    }
-    
-    // Execute with timeout
-    const result = await executeWithTimeout(child, timeout);
-    return result.trim();
-  } finally {
-    // Cleanup
-    try {
-      // Delete the directory recursively
-      if (fs.existsSync(dirPath)) {
-        const files = fs.readdirSync(dirPath);
-        for (const file of files) {
-          fs.unlinkSync(path.join(dirPath, file));
-        }
-        fs.rmdirSync(dirPath);
+    // Check if input is required but not handled in code
+    if (input && input.trim() !== '') {
+      console.log('\nInput provided, checking input handling...');
+      const inputCheck = checkCppInputHandling(code);
+      console.log('Input check result:', inputCheck);
+      
+      if (!inputCheck.valid) {
+        throw { 
+          verdict: 'Compilation Error', 
+          error: inputCheck.error
+        };
       }
-    } catch (error) {
-      console.error('Error during cleanup:', error);
     }
-  }
-};
 
-// Main function to run code in any supported language
-const runCode = async (code, input, language) => {
-  // Normalize language name
-  const normalizedLanguage = language.toLowerCase();
-  
-  try {
-    if (normalizedLanguage === 'cpp' || normalizedLanguage === 'c++') {
-      return await runCpp(code, input);
-    } else if (normalizedLanguage === 'python' || normalizedLanguage === 'py') {
-      return await runPython(code, input);
-    } else if (normalizedLanguage === 'java') {
-      return await runJava(code, input);
-    } else {
-      throw { verdict: 'Unsupported Language', error: `Language ${language} is not supported` };
+    const uniqueName = getUniqueFilename();
+    const filePath = path.join(__dirname, `${uniqueName}.cpp`);
+    const exePath = path.join(__dirname, `${uniqueName}.exe`);
+    
+    try {
+      // Write code to file
+      await writeFileAsync(filePath, code);
+      
+      // Compile code with detailed error reporting
+      const compileResult = await new Promise((resolve, reject) => {
+        // Add -Wall for all warnings and -Werror to treat warnings as errors
+        const compileCmd = `g++ "${filePath}" -o "${exePath}" -std=c++17 -Wall -Werror`;
+        
+        exec(compileCmd, (error, stdout, stderr) => {
+          if (error || stderr) {
+            // Clean up the error message to be more user-friendly
+            const errorMessage = stderr
+              .replace(filePath, 'your code')
+              .replace(/:\d+:\d+:/g, ': ') // Remove line and column numbers
+              .replace(/error:/gi, 'Error: ')
+              .replace(/warning:/gi, 'Warning: ')
+              .trim();
+            
+            reject({ 
+              verdict: 'Compilation Error', 
+              error: errorMessage || error.message 
+            });
+          } else {
+            resolve(stdout);
+          }
+        });
+      });
+      
+      // Run the executable
+      const child = spawn(`"${exePath}"`, { shell: true });
+      
+      // Write input to stdin if provided
+      if (input) {
+        child.stdin.write(input);
+        child.stdin.end();
+      }
+      
+      // Execute with timeout
+      const result = await executeWithTimeout(child, MAX_EXECUTION_TIME);
+      return result.trim();
+    } finally {
+      // Cleanup
+      try {
+        if (fs.existsSync(filePath)) await unlinkAsync(filePath);
+        if (fs.existsSync(exePath)) await unlinkAsync(exePath);
+      } catch (error) {
+        console.error('Error during cleanup:', error);
+      }
     }
   } catch (error) {
-    throw error; // Pass any errors up to the caller
+    console.error('\nError in runCode:', error);
+    throw error;
   }
 };
 

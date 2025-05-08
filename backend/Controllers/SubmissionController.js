@@ -2,7 +2,7 @@ const Submission = require('../Models/Submission');
 const Contest = require('../Models/Contest');
 const User = require('../Models/User');
 const Question = require('../Models/Question');
-const runCode = require('../utils/runCode');
+const executeCode = require('../utils/runCode');
 
 exports.submitCode = async (req, res) => {
     try {
@@ -59,8 +59,13 @@ exports.submitCode = async (req, res) => {
 
         console.log(`Previous attempts: ${previousAttempts}`);
         
+        // Check if the problem has already been solved
+        const alreadySolved = participant.solvedQuestions && 
+                            participant.solvedQuestions.includes(questionId);
+        
         // Calculate penalty percentage (10% per failed attempt, max 50%)
-        const penaltyPercentage = Math.min(previousAttempts * 10, 50);
+        // Only apply penalty if the problem hasn't been solved yet
+        const penaltyPercentage = alreadySolved ? 0 : Math.min(previousAttempts * 10, 50);
         
         // Run test cases to determine verdict
         let verdict = "Accepted";
@@ -70,7 +75,7 @@ exports.submitCode = async (req, res) => {
         for (let testCase of question.testCases) {
             try {
                 console.log(`📝 Running test case: Input = ${testCase.input}`);
-                const result = await runCode(code, testCase.input, language);
+                const result = await executeCode(code, testCase.input, language);
                 console.log(`✅ Output: ${result.trim()}, Expected: ${testCase.expectedOutput.trim()}`);
 
                 if (result.trim() !== testCase.expectedOutput.trim()) {
@@ -110,9 +115,6 @@ exports.submitCode = async (req, res) => {
             console.log(`Original points: ${pointsAwarded}, Penalty: ${penaltyPercentage}%, Adjusted points: ${adjustedPoints}`);
 
             // Update participant in contest
-            const alreadySolved = participant.solvedQuestions && 
-                                participant.solvedQuestions.includes(questionId);
-            
             if (!alreadySolved) {
                 participant.points = (participant.points || 0) + adjustedPoints;
                 // Add to solved questions array
@@ -190,21 +192,40 @@ exports.submitCode = async (req, res) => {
 
 exports.runCode = async (req, res) => {
     try {
+        console.log('Received run code request:', {
+            body: req.body,
+            headers: req.headers
+        });
+
         const { code, language, input } = req.body;
 
-        // Validate language
-        const supportedLanguages = ['cpp', 'c++', 'python', 'py', 'java'];
-        if (!language || !supportedLanguages.includes(language.toLowerCase())) {
+        // Validate required fields
+        if (!code) {
+            console.log('Missing code in request');
             return res.status(400).json({ 
                 success: false, 
-                message: `Unsupported language. Supported languages are: ${supportedLanguages.join(', ')}`
+                message: "Code is required" 
+            });
+        }
+
+        // Set default language to cpp if not provided
+        const codeLanguage = language || 'cpp';
+        console.log('Using language:', codeLanguage);
+
+        // Validate language
+        const supportedLanguages = ['cpp', 'c++'];
+        if (!supportedLanguages.includes(codeLanguage.toLowerCase())) {
+            console.log('Unsupported language:', codeLanguage);
+            return res.status(400).json({ 
+                success: false, 
+                message: `Unsupported language. Only C++ is supported.` 
             });
         }
 
         // Run the code without saving a submission
         try {
             console.log(`📝 Running code with input: ${input}`);
-            const result = await runCode(code, input, language);
+            const result = await executeCode(code, input);
             console.log(`✅ Output: ${result.trim()}`);
 
             // Return the result

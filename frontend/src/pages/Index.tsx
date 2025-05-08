@@ -19,7 +19,7 @@ const Index = () => {
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight md:leading-tight tracking-tight animate-slide-up">
             Master coding challenges.
-            <span className="block text-primary">Build your skills with us.</span>
+            <span className="block text-primary">Build your skills.</span>
           </h1>
           
           <p className="text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '100ms' }}>

@@ -55,11 +55,13 @@ const getContestLeaderboard = async (req, res) => {
                     };
                 }
             } else {
-                // Count wrong submissions for penalty calculation
-                if (!wrongSubmissionCounts[key]) {
-                    wrongSubmissionCounts[key] = 0;
+                // Only count wrong submissions that occurred before the correct solution
+                if (!userQuestionTimes[key] || submission.submittedAt < userQuestionTimes[key].submittedAt) {
+                    if (!wrongSubmissionCounts[key]) {
+                        wrongSubmissionCounts[key] = 0;
+                    }
+                    wrongSubmissionCounts[key]++;
                 }
-                wrongSubmissionCounts[key]++;
             }
         });
 
