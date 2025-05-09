@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             <Code size={24} className="text-primary" />
-            <span className="font-medium text-xl">CodeCraft</span>
+            <span className="font-medium text-xl">CodeX</span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6 text-sm">

@@ -14,7 +14,7 @@ const Index = () => {
       <section className="py-20 md:py-28 container-custom relative overflow-hidden">
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary">
-            <span className="animate-pulse">•</span> Welcome to CodeCraft
+            <span className="animate-pulse">•</span> Welcome to CodeX
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight md:leading-tight tracking-tight animate-slide-up">
@@ -28,7 +28,7 @@ const Index = () => {
           
           <div className="flex flex-wrap justify-center gap-4 pt-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
             {isAuthenticated ? (
-              <Link to="/problems">
+              <Link to="/contests">
                 <Button size="lg" className="gap-2">
                   Start Coding
                   <ArrowRight size={16} />
@@ -108,7 +108,7 @@ const Index = () => {
             </p>
             
             {isAuthenticated ? (
-              <Link to="/problems">
+              <Link to="/home">
                 <Button size="lg" className="gap-2">
                   Explore Problems
                   <ArrowRight size={16} />

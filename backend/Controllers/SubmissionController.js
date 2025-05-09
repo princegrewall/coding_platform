@@ -6,7 +6,7 @@ const runCode = require('../utils/runCode');
 
 exports.submitCode = async (req, res) => {
     try {
-        const { contestId, questionId, code, language, userId } = req.body;
+        const { contestId, questionId, code, language, userId, isPracticeMode } = req.body;
 
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID is required" });
@@ -37,14 +37,16 @@ exports.submitCode = async (req, res) => {
             });
         }
 
-        // Check if user is a participant
-        const participantIndex = contest.participants.findIndex(p => p.userId.toString() === userId);
-        if (participantIndex === -1) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "You must join the contest before submitting solutions" 
-            });
-        }
+        // If not in practice mode, check if user is a participant and contest is active
+        if (!isPracticeMode) {
+            // Check if user is a participant
+            const participantIndex = contest.participants.findIndex(p => p.userId.toString() === userId);
+            if (participantIndex === -1) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "You must join the contest before submitting solutions" 
+                });
+            }
 
         // Find the participant in the contest
         const participant = contest.participants[participantIndex];
@@ -98,13 +100,14 @@ exports.submitCode = async (req, res) => {
             language,
             status: verdict,
             pointsAwarded: verdict === "Accepted" ? pointsAwarded : 0,
-            errorDetails
+            errorDetails,
+            isPracticeMode
         });
 
         await submission.save();
 
-        // If the answer is correct, update user's points with penalty applied
-        if (verdict === "Accepted") {
+        // If the answer is correct and not in practice mode, update user's points with penalty applied
+        if (verdict === "Accepted" && !isPracticeMode) {
             // Apply penalty to points
             const adjustedPoints = Math.ceil(pointsAwarded * (100 - penaltyPercentage) / 100);
             console.log(`Original points: ${pointsAwarded}, Penalty: ${penaltyPercentage}%, Adjusted points: ${adjustedPoints}`);
@@ -151,42 +154,27 @@ exports.submitCode = async (req, res) => {
                     await user.save();
                 }
             }
-
-            // Return success with adjusted points
-            res.json({ 
-                success: true, 
-                verdict,
-                pointsAwarded: adjustedPoints,
-                penalty: penaltyPercentage > 0 ? {
-                    percentage: penaltyPercentage,
-                    originalPoints: pointsAwarded,
-                    deduction: pointsAwarded - adjustedPoints
-                } : null,
-                errorDetails
-            });
-        } else {
-            // For wrong answers, just return the verdict
-            res.json({ 
-                success: true, 
-                verdict, 
-                pointsAwarded: 0,
-                attempts: previousAttempts + 1,
-                penalty: previousAttempts > 0 ? {
-                    nextPenaltyPercentage: Math.min((previousAttempts + 1) * 10, 50),
-                    attempts: previousAttempts + 1
-                } : null,
-                errorDetails
-            });
         }
+
+        res.json({
+            success: true,
+            submission: {
+                status: verdict,
+                pointsAwarded: verdict === "Accepted" ? pointsAwarded : 0,
+                errorDetails,
+                isPracticeMode
+            }
+        });
+    }
     } catch (error) {
-        console.error("❌ Submission Error:", error);
+        console.error('Error submitting code:', error);
         res.status(500).json({ 
             success: false, 
             message: "Server error", 
-            error: error.message || error.toString()
+            error: error.message 
         });
     }
-};
+}
 
 exports.runCode = async (req, res) => {
     try {

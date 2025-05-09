@@ -257,27 +257,19 @@ Your solution did not pass all test cases.`);
   };
 
   return (
-    <div className="flex flex-col h-full border rounded-lg shadow-sm animate-fade-in overflow-hidden bg-white">
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary font-medium rounded-md text-sm">
-            C++
-          </div>
-          {solved && (
-            <div className="flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 font-medium rounded-md text-sm">
-              <Check size={14} />
-              Solved
-            </div>
-          )}
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Code2 size={20} className="text-primary" />
+          <h2 className="text-lg font-medium text-foreground">Code Editor</h2>
         </div>
-        
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={runCode}
             disabled={isRunning || isSubmitting}
-            className="gap-1"
+            className="gap-1.5"
           >
             <Play size={16} />
             Run
@@ -285,44 +277,37 @@ Your solution did not pass all test cases.`);
           <Button
             size="sm"
             onClick={submitCode}
-            disabled={isRunning || isSubmitting || !isContestActive}
-            className="gap-1"
+            disabled={isRunning || isSubmitting}
+            className="gap-1.5"
           >
             <Check size={16} />
             Submit
           </Button>
         </div>
       </div>
-      
-      <Tabs 
-        defaultValue="editor" 
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
-      >
-        <div className="border-b px-4">
-          <TabsList className="h-9 -mb-px">
-            <TabsTrigger value="editor" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Code Editor
-            </TabsTrigger>
-            <TabsTrigger value="console" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Console Output
-            </TabsTrigger>
-          </TabsList>
-        </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="editor">Editor</TabsTrigger>
+          <TabsTrigger value="console">Console</TabsTrigger>
+        </TabsList>
         
-        <TabsContent value="editor" className="flex-1 p-0 mt-0">
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none bg-code text-code-foreground"
-            spellCheck="false"
-          />
+        <TabsContent value="editor" className="flex-1 mt-0">
+          <div className="h-full border rounded-lg overflow-hidden bg-card">
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full h-full p-4 font-mono text-sm bg-background text-foreground resize-none focus:outline-none"
+              spellCheck={false}
+            />
+          </div>
         </TabsContent>
         
-        <TabsContent value="console" className="flex-1 p-0 mt-0">
-          <div className="w-full h-full p-4 font-mono text-sm bg-black text-white overflow-auto">
-            <pre>{consoleOutput}</pre>
+        <TabsContent value="console" className="flex-1 mt-0">
+          <div className="h-full border rounded-lg overflow-hidden bg-card">
+            <pre className="w-full h-full p-4 font-mono text-sm bg-background text-foreground overflow-auto whitespace-pre-wrap">
+              {consoleOutput || 'No output yet'}
+            </pre>
           </div>
         </TabsContent>
       </Tabs>

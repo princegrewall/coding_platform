@@ -166,10 +166,10 @@ const Contests: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Contests</h1>
+        <h1 className="text-3xl font-bold text-foreground">Contests</h1>
         <Link
           to="/contests/create"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         >
           Create Contest
         </Link>
@@ -177,7 +177,7 @@ const Contests: React.FC = () => {
       
       {/* Filter tabs */}
       <div className="mb-6">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-border">
           <nav className="-mb-px flex space-x-8">
             {['all', 'active', 'upcoming', 'past'].map((status) => (
               <button
@@ -186,8 +186,8 @@ const Contests: React.FC = () => {
                 className={`
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                   ${filter === status 
-                    ? 'border-blue-500 text-blue-600' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                    ? 'border-primary text-primary' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}
                 `}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -199,18 +199,18 @@ const Contests: React.FC = () => {
       
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/20 border border-destructive text-destructive-foreground px-4 py-3 rounded">
           <p>{error}</p>
         </div>
       ) : filteredContests.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
-          <p className="text-gray-500 mb-4">No contests found</p>
+        <div className="text-center py-12 bg-card rounded-lg border border-border">
+          <p className="text-muted-foreground mb-4">No contests found</p>
           <Link
             to="/contests/create"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Create a New Contest
           </Link>
@@ -226,34 +226,40 @@ const Contests: React.FC = () => {
             return (
               <div 
                 key={contest._id} 
-                className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-card cursor-pointer"
+                onClick={() => navigate(`/contest/${contest._id}`)}
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start">
-                    <h2 className="text-xl font-semibold">{contest.name}</h2>
+                    <h2 className="text-xl font-semibold text-foreground">{contest.name}</h2>
                     <span className={`
                       inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${status === 'active' ? 'bg-green-100 text-green-800' : 
-                        status === 'upcoming' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-gray-100 text-gray-800'}
+                      ${status === 'active' ? 'bg-green-500/10 text-green-400' : 
+                        status === 'upcoming' ? 'bg-blue-500/10 text-blue-400' : 
+                        'bg-muted text-muted-foreground'}
                     `}>
                       {status === 'active' ? 'Active' : 
                        status === 'upcoming' ? 'Upcoming' : 'Past'}
                     </span>
                   </div>
                   
-                  <p className="mt-2 text-gray-600 line-clamp-2">
+                  <p className="mt-2 text-muted-foreground line-clamp-2">
                     {contest.description || 'No description provided'}
                   </p>
                   
-                  <div className="mt-4 space-y-2 text-sm text-gray-500">
+                  <div className="mt-4 space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span>
-                        {new Date(contest.startTime).toLocaleString()} - {new Date(contest.endTime).toLocaleString()}
+                        {new Date(contest.startTime).toLocaleDateString()}, 
+                        {new Date(contest.startTime).toLocaleTimeString()} - 
+                        {new Date(contest.endTime).toLocaleDateString() === new Date(contest.startTime).toLocaleDateString()
+                          ? new Date(contest.endTime).toLocaleTimeString()
+                          : `${new Date(contest.endTime).toLocaleDateString()}, ${new Date(contest.endTime).toLocaleTimeString()}`}
                       </span>
+
                     </div>
                     <div className="flex items-center">
                       <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -278,7 +284,8 @@ const Contests: React.FC = () => {
                   <div className="mt-6 flex justify-between items-center">
                     <Link
                       to={`/contest/${contest._id}/leaderboard`}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-primary hover:text-primary/80 text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       View Leaderboard
                     </Link>
@@ -288,19 +295,23 @@ const Contests: React.FC = () => {
                         <Link
                           to={`/contest/${contest._id}`}
                           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           Enter Contest
                         </Link>
                       ) : (
                         <button
-                          onClick={() => joinContest(contest._id)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            joinContest(contest._id);
+                          }}
+                          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                         >
                           Join Contest
                         </button>
                       )
                     ) : (
-                      <span className="text-gray-500 text-sm">Contest Ended</span>
+                      <span className="text-muted-foreground text-sm">Contest Ended</span>
                     )}
                   </div>
                 </div>

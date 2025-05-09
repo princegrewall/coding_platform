@@ -8,9 +8,9 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const difficultyColors = {
-  'Easy': 'text-green-600 bg-green-50',
-  'Medium': 'text-amber-600 bg-amber-50',
-  'Hard': 'text-red-600 bg-red-50',
+  'Easy': 'text-green-400 bg-green-500/20',
+  'Medium': 'text-yellow-400 bg-yellow-500/20',
+  'Hard': 'text-destructive-foreground bg-destructive/20',
 };
 
 const ProblemDetail = () => {
@@ -94,12 +94,12 @@ const ProblemDetail = () => {
         
         <div className="flex items-center space-x-3 mb-2">
           {isSolved ? (
-            <CheckCircle2 size={20} className="text-green-600" />
+            <CheckCircle2 size={20} className="text-green-400" />
           ) : (
             <Circle size={20} className="text-muted-foreground/60" />
           )}
           
-          <h1 className="text-2xl font-semibold">{problem.title}</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{problem.title}</h1>
           
           <span className={cn(
             "text-xs px-2.5 py-1 rounded-full font-medium",

@@ -17,7 +17,7 @@ const Login = () => {
   };
 
   if (isAuthenticated) {
-    return <Navigate to="/problems" replace />;
+    return <Navigate to="/contests" replace />;
   }
 
   return (
@@ -78,9 +78,7 @@ const Login = () => {
             </Button>
             
             <div className="text-center text-sm text-muted-foreground">
-              <p>
-                For demo, use: <span className="font-medium">demo@example.com</span> / <span className="font-medium">password</span>
-              </p>
+              
             </div>
           </form>
           
