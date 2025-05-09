@@ -30,7 +30,7 @@ interface CodeEditorProps {
 
 const cppTemplate = `#include <vector>
 #include <iostream>
-
+using namespace std;
 // Write your solution here
 void solution() {
     // Your code goes here
