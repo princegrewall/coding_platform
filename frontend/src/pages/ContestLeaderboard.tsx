@@ -116,18 +116,18 @@ const ContestLeaderboard: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/20 border border-destructive text-destructive-foreground px-4 py-3 rounded">
           <p>{error}</p>
         </div>
       ) : leaderboardData ? (
         <>
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">{leaderboardData.contestName} - Leaderboard</h1>
+            <h1 className="text-3xl font-bold mb-2 text-foreground">{leaderboardData.contestName} - Leaderboard</h1>
             
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
               <div>
                 <span className="font-semibold">Start:</span> {new Date(leaderboardData.startTime).toLocaleString()}
               </div>
@@ -138,8 +138,8 @@ const ContestLeaderboard: React.FC = () => {
                 <div>
                   <span className="font-semibold">Status:</span> 
                   <span className={`ml-1 ${
-                    contestStatus.status === 'ongoing' ? 'text-green-600' : 
-                    contestStatus.status === 'upcoming' ? 'text-blue-600' : 'text-red-600'
+                    contestStatus.status === 'ongoing' ? 'text-green-400' : 
+                    contestStatus.status === 'upcoming' ? 'text-blue-400' : 'text-destructive-foreground'
                   }`}>
                     {contestStatus.text}
                   </span>
@@ -147,8 +147,8 @@ const ContestLeaderboard: React.FC = () => {
               )}
             </div>
             
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <p className="text-sm text-blue-700">
+            <div className="bg-primary/10 border-l-4 border-primary p-4 mb-4">
+              <p className="text-sm text-primary">
                 <span className="font-semibold">Note:</span> Each wrong submission adds a penalty of {formatTimeHuman(leaderboardData.penaltyPerWrongSubmission)} to the total time.
               </p>
             </div>
@@ -160,7 +160,7 @@ const ContestLeaderboard: React.FC = () => {
           />
         </>
       ) : (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+        <div className="bg-yellow-500/10 border border-yellow-500 text-yellow-400 px-4 py-3 rounded">
           <p>No leaderboard data available</p>
         </div>
       )}

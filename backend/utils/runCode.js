@@ -30,7 +30,7 @@ const checkCppInputHandling = (code) => {
   console.log('- Input patterns found:', normalizedCode.match(/cin\s*>>|getline\s*\(|scanf\s*\(/g));
   
   // Check for proper input stream setup
-  const hasProperSetup = /#include\s*<iostream>|#include\s*<cstdio>/.test(normalizedCode);
+  const hasProperSetup = /#include\s*<iostream>|#include\s*<cstdio>|#include\s*<bits\/stdc\+\+\.h>/.test(normalizedCode);
   console.log('\nSetup check:');
   console.log('- Has proper setup:', hasProperSetup);
   console.log('- Headers found:', normalizedCode.match(/#include\s*<[^>]+>/g));
@@ -63,7 +63,7 @@ const checkCppInputHandling = (code) => {
     console.log('\nValidation failed: Missing proper setup');
     return { 
       valid: false, 
-      error: "Missing required header. Please include <iostream> or <cstdio> for input handling." 
+      error: "Missing required header. Please include <iostream>, <cstdio>, or <bits/stdc++.h> for input handling." 
     };
   }
 

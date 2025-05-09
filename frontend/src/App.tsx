@@ -43,18 +43,18 @@ const App = () => (
                 
                 {/* Problem routes */}
                 <Route 
-                  path="/problems" 
+                  path="/contest/:contestId" 
                   element={
                     <ProtectedRoute>
-                      <Problems />
+                      <ContestDetail />
                     </ProtectedRoute>
                   } 
                 />
                 <Route 
-                  path="/problems/:id" 
+                  path="/contest/:contestId" 
                   element={
                     <ProtectedRoute>
-                      <ProblemDetail />
+                      <ContestDetail/>
                     </ProtectedRoute>
                   } 
                 />

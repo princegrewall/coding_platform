@@ -30,7 +30,7 @@ interface CodeEditorProps {
 
 const cppTemplate = `#include <vector>
 #include <iostream>
-
+using namespace std;
 // Write your solution here
 void solution() {
     // Your code goes here
@@ -190,39 +190,53 @@ ${error.response?.data?.error || ''}`);
         if (response.data.success) {
           // Format penalty information
           let penaltyInfo = '';
-          if (response.data.penalty) {
-            if (response.data.verdict === 'Accepted') {
-              penaltyInfo = `\nPenalty applied: ${response.data.penalty.percentage}%
-Original points: ${response.data.penalty.originalPoints}
-Points deducted: ${response.data.penalty.deduction}
-Final points awarded: ${response.data.pointsAwarded}`;
+          if (response.data.submission.penalty) {
+            if (response.data.submission.status === 'Accepted') {
+              penaltyInfo = `\nPenalty applied: ${response.data.submission.penalty.percentage}%
+Original points: ${response.data.submission.penalty.originalPoints}
+Points deducted: ${response.data.submission.penalty.deduction}
+Final points awarded: ${response.data.submission.pointsAwarded}`;
             } else {
-              penaltyInfo = `\nAttempt #${response.data.attempts}
-Next submission penalty will be: ${response.data.penalty.nextPenaltyPercentage}%`;
+              penaltyInfo = `\nAttempt #${response.data.submission.attempts}
+Next submission penalty will be: ${response.data.submission.penalty.nextPenaltyPercentage}%`;
             }
+          }
+
+          // Format test case results
+          let testCaseOutput = '';
+          if (response.data.submission.testCaseResults) {
+            testCaseOutput = '\n\nTest Case Results:';
+            response.data.submission.testCaseResults.forEach((result, index) => {
+              testCaseOutput += `\n\nTest Case ${result.testCase}: ${result.passed ? '✅ PASSED' : '❌ FAILED'}`;
+              if (!result.passed) {
+                testCaseOutput += `\nInput: ${result.input}`;
+                testCaseOutput += `\nExpected: ${result.expected}`;
+                testCaseOutput += `\nGot: ${result.actual || result.error}`;
+              }
+            });
           }
 
           setConsoleOutput(`Compilation successful!
 Running test cases...
-${response.data.verdict === 'Accepted' ? 'All tests passed!' : 'Some tests failed'}
+${response.data.submission.status === 'Accepted' ? 'All tests passed!' : 'Some tests failed'}
 Time: ${Math.floor(Math.random() * 100)}ms
-Memory: ${Math.floor(Math.random() * 10) + 20}MB
+Memory: ${Math.floor(Math.random() * 10) + 20}MB${testCaseOutput}
 
-${response.data.verdict === 'Accepted' 
+${response.data.submission.status === 'Accepted' 
   ? 'Congratulations! Your solution has been accepted.'
   : 'Your solution did not pass all test cases.'}${penaltyInfo}
-${response.data.errorDetails ? `\nError details: ${response.data.errorDetails}` : ''}`);
+${response.data.submission.errorDetails ? `\nError details: ${response.data.submission.errorDetails}` : ''}`);
 
-          if (response.data.verdict === 'Accepted') {
+          if (response.data.submission.status === 'Accepted') {
             setSolved(true);
             toast.success('Solution accepted!', {
-              description: `You earned ${response.data.pointsAwarded} points!${response.data.penalty ? ` (${response.data.penalty.percentage}% penalty applied)` : ''}`,
+              description: `You earned ${response.data.submission.pointsAwarded} points!${response.data.submission.penalty ? ` (${response.data.submission.penalty.percentage}% penalty applied)` : ''}`,
               duration: 3000,
             });
             onSolve();
           } else {
             toast.error('Solution rejected', {
-              description: `${response.data.message || 'Your code failed on some test cases.'} ${response.data.penalty ? `Attempt #${response.data.attempts}` : ''}`,
+              description: `${response.data.submission.errorDetails || 'Your code failed on some test cases.'} ${response.data.submission.penalty ? `Attempt #${response.data.submission.attempts}` : ''}`,
               duration: 3000,
             });
           }
@@ -301,27 +315,19 @@ Your solution did not pass all test cases.`);
   };
 
   return (
-    <div className="flex flex-col h-full border rounded-lg shadow-sm animate-fade-in overflow-hidden bg-white">
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary font-medium rounded-md text-sm">
-            C++
-          </div>
-          {solved && (
-            <div className="flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 font-medium rounded-md text-sm">
-              <Check size={14} />
-              Solved
-            </div>
-          )}
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Code2 size={20} className="text-primary" />
+          <h2 className="text-lg font-medium text-foreground">Code Editor</h2>
         </div>
-        
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={runCode}
             disabled={isRunning || isSubmitting}
-            className="gap-1"
+            className="gap-1.5"
           >
             <Play size={16} />
             Run
@@ -329,44 +335,37 @@ Your solution did not pass all test cases.`);
           <Button
             size="sm"
             onClick={submitCode}
-            disabled={isRunning || isSubmitting || !isContestActive}
-            className="gap-1"
+            disabled={isRunning || isSubmitting}
+            className="gap-1.5"
           >
             <Check size={16} />
             Submit
           </Button>
         </div>
       </div>
-      
-      <Tabs 
-        defaultValue="editor" 
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
-      >
-        <div className="border-b px-4">
-          <TabsList className="h-9 -mb-px">
-            <TabsTrigger value="editor" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Code Editor
-            </TabsTrigger>
-            <TabsTrigger value="console" className="data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Console Output
-            </TabsTrigger>
-          </TabsList>
-        </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="editor">Editor</TabsTrigger>
+          <TabsTrigger value="console">Console</TabsTrigger>
+        </TabsList>
         
-        <TabsContent value="editor" className="flex-1 p-0 mt-0">
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none bg-code text-code-foreground"
-            spellCheck="false"
-          />
+        <TabsContent value="editor" className="flex-1 mt-0">
+          <div className="h-full border rounded-lg overflow-hidden bg-card">
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full h-full p-4 font-mono text-sm bg-background text-foreground resize-none focus:outline-none"
+              spellCheck={false}
+            />
+          </div>
         </TabsContent>
         
-        <TabsContent value="console" className="flex-1 p-0 mt-0">
-          <div className="w-full h-full p-4 font-mono text-sm bg-black text-white overflow-auto">
-            <pre>{consoleOutput}</pre>
+        <TabsContent value="console" className="flex-1 mt-0">
+          <div className="h-full border rounded-lg overflow-hidden bg-card">
+            <pre className="w-full h-full p-4 font-mono text-sm bg-background text-foreground overflow-auto whitespace-pre-wrap">
+              {consoleOutput || 'No output yet'}
+            </pre>
           </div>
         </TabsContent>
       </Tabs>

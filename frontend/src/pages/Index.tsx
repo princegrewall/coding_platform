@@ -1,9 +1,28 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Code, Zap, Trophy, Layout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/authContext';
+
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay?: number;
+}
+
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, delay = 0 }) => (
+  <div 
+    className="bg-background rounded-xl p-6 border shadow-sm hover:shadow-md transition-all duration-300 animate-slide-up" 
+    style={{ animationDelay: `${delay}ms` }}
+  >
+    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
+      {icon}
+    </div>
+    <h3 className="text-xl font-medium mb-2">{title}</h3>
+    <p className="text-muted-foreground">{description}</p>
+  </div>
+);
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
@@ -14,7 +33,7 @@ const Index = () => {
       <section className="py-20 md:py-28 container-custom relative overflow-hidden">
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary">
-            <span className="animate-pulse">•</span> Welcome to CodeCraft
+            <span className="animate-pulse">•</span> Welcome to CodeX
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight md:leading-tight tracking-tight animate-slide-up">
@@ -28,7 +47,7 @@ const Index = () => {
           
           <div className="flex flex-wrap justify-center gap-4 pt-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
             {isAuthenticated ? (
-              <Link to="/problems">
+              <Link to="/contests">
                 <Button size="lg" className="gap-2">
                   Start Coding
                   <ArrowRight size={16} />
@@ -95,63 +114,8 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* CTA section */}
-      <section className="py-16 md:py-24 container-custom">
-        <div className="bg-primary/5 rounded-2xl p-8 md:p-12 relative overflow-hidden animate-fade-in">
-          <div className="max-w-2xl relative z-10">
-            <h2 className="text-3xl font-semibold mb-4">
-              Ready to level up your coding skills?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Join thousands of developers who are mastering algorithms and data structures on our platform.
-            </p>
-            
-            {isAuthenticated ? (
-              <Link to="/problems">
-                <Button size="lg" className="gap-2">
-                  Explore Problems
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/signup">
-                <Button size="lg" className="gap-2">
-                  Get Started for Free
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
-            )}
-          </div>
-          
-          {/* Background decoration */}
-          <div className="absolute right-0 bottom-0 w-1/2 h-1/2 opacity-20 -z-10">
-            <Code size={280} className="absolute right-4 bottom-0 text-primary" />
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
-
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  delay?: number;
-}
-
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, delay = 0 }) => (
-  <div 
-    className="bg-background rounded-xl p-6 border shadow-sm hover:shadow-md transition-all duration-300 animate-slide-up" 
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
-      {icon}
-    </div>
-    <h3 className="text-xl font-medium mb-2">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
-  </div>
-);
 
 export default Index;

@@ -38,8 +38,20 @@ const getContestLeaderboard = async (req, res) => {
 
         // Create maps to track submissions
         const userQuestionTimes = {}; // For accepted submissions
-        const wrongSubmissionCounts = {}; // To count wrong submissions per user per question
+        const wrongSubmissionCounts = {};
+        const solvedQuestions = new Set(); // Track which questions have been solved
         
+        // First pass: identify all solved questions
+        allSubmissions.forEach(submission => {
+            if (submission.status === "Accepted") {
+                const userId = submission.userId.toString();
+                const questionId = submission.questionId.toString();
+                const key = `${userId}-${questionId}`;
+                solvedQuestions.add(key);
+            }
+        });
+        
+        // Second pass: count wrong submissions only for unsolved questions
         allSubmissions.forEach(submission => {
             const userId = submission.userId.toString();
             const questionId = submission.questionId.toString();
@@ -54,14 +66,12 @@ const getContestLeaderboard = async (req, res) => {
                         questionId: questionId
                     };
                 }
-            } else {
-                // Only count wrong submissions that occurred before the correct solution
-                if (!userQuestionTimes[key] || submission.submittedAt < userQuestionTimes[key].submittedAt) {
-                    if (!wrongSubmissionCounts[key]) {
-                        wrongSubmissionCounts[key] = 0;
-                    }
-                    wrongSubmissionCounts[key]++;
+            } else if (!solvedQuestions.has(key)) {
+                // Only count wrong submissions for questions that haven't been solved yet
+                if (!wrongSubmissionCounts[key]) {
+                    wrongSubmissionCounts[key] = 0;
                 }
+                wrongSubmissionCounts[key]++;
             }
         });
 
@@ -85,13 +95,15 @@ const getContestLeaderboard = async (req, res) => {
                         const contestStartTime = new Date(contest.startTime);
                         totalTimeTaken += (submissionTime - contestStartTime) / 1000; // in seconds
                     }
-                    
-                    // Add penalty for wrong submissions
-                    if (wrongSubmissionCounts[key]) {
-                        totalPenalties += wrongSubmissionCounts[key] * WRONG_SUBMISSION_PENALTY;
-                    }
                 });
             }
+
+            // Calculate total wrong submissions and penalties
+            const totalWrongSubmissions = Object.keys(wrongSubmissionCounts)
+                .filter(key => key.startsWith(userId))
+                .reduce((total, key) => total + wrongSubmissionCounts[key], 0);
+            
+            totalPenalties = totalWrongSubmissions * WRONG_SUBMISSION_PENALTY;
             
             // Total time with penalties
             const totalTimeWithPenalties = totalTimeTaken + totalPenalties;
@@ -103,9 +115,7 @@ const getContestLeaderboard = async (req, res) => {
                 points: participant.points,
                 problemsSolved: solvedCount,
                 solvingTime: totalTimeTaken, // Raw solving time without penalties
-                wrongSubmissions: Object.keys(wrongSubmissionCounts)
-                    .filter(key => key.startsWith(userId))
-                    .reduce((total, key) => total + wrongSubmissionCounts[key], 0),
+                wrongSubmissions: totalWrongSubmissions,
                 penalties: totalPenalties,
                 totalTime: totalTimeWithPenalties, // Total time with penalties included
             };

@@ -9,8 +9,8 @@ const checkCppInputHandling = (code) => {
   // Check for basic input handling
   const hasBasicInput = /cin\s*>>|getline\s*\(|scanf\s*\(/.test(normalizedCode);
   
-  // Check for proper input stream setup
-  const hasProperSetup = /#include\s*<iostream>|#include\s*<cstdio>/.test(normalizedCode);
+  // Check for proper input stream setup - now including bits/stdc++.h
+  const hasProperSetup = /#include\s*<iostream>|#include\s*<cstdio>|#include\s*<bits\/stdc\+\+\.h>/.test(normalizedCode);
   
   // Check for variable declarations for input
   const hasVariableDeclarations = /(int|string|char|double|float|long)\s+\w+\s*;/.test(normalizedCode);
@@ -24,7 +24,7 @@ const checkCppInputHandling = (code) => {
   if (!hasProperSetup) {
     return { 
       valid: false, 
-      error: "Missing required header. Please include <iostream> or <cstdio> for input handling." 
+      error: "Missing required header. Please include <iostream>, <cstdio>, or <bits/stdc++.h> for input handling." 
     };
   }
 

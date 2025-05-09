@@ -33,7 +33,7 @@ const Signup = () => {
             </div>
             <h2 className="text-2xl font-semibold">Create an account</h2>
             <p className="text-sm text-muted-foreground">
-              Sign up to get started with CodeCraft
+              Sign up to get started with CodeX
             </p>
           </div>
           

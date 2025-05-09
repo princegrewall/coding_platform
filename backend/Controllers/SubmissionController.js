@@ -6,7 +6,7 @@ const executeCode = require('../utils/runCode');
 
 exports.submitCode = async (req, res) => {
     try {
-        const { contestId, questionId, code, language, userId } = req.body;
+        const { contestId, questionId, code, language, userId, isPracticeMode } = req.body;
 
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID is required" });
@@ -37,14 +37,16 @@ exports.submitCode = async (req, res) => {
             });
         }
 
-        // Check if user is a participant
-        const participantIndex = contest.participants.findIndex(p => p.userId.toString() === userId);
-        if (participantIndex === -1) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "You must join the contest before submitting solutions" 
-            });
-        }
+        // If not in practice mode, check if user is a participant and contest is active
+        if (!isPracticeMode) {
+            // Check if user is a participant
+            const participantIndex = contest.participants.findIndex(p => p.userId.toString() === userId);
+            if (participantIndex === -1) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "You must join the contest before submitting solutions" 
+                });
+            }
 
         // Find the participant in the contest
         const participant = contest.participants[participantIndex];
@@ -54,7 +56,8 @@ exports.submitCode = async (req, res) => {
             userId,
             contestId,
             questionId,
-            status: { $ne: "Accepted" } // Only count unsuccessful attempts
+            status: { $ne: "Accepted" }, // Only count unsuccessful attempts
+            submittedAt: { $lt: new Date() } // Only count attempts before current submission
         });
 
         console.log(`Previous attempts: ${previousAttempts}`);
@@ -71,16 +74,43 @@ exports.submitCode = async (req, res) => {
         let verdict = "Accepted";
         let pointsAwarded = question.points;
         let errorDetails = null;
+        let testCaseResults = [];
 
-        for (let testCase of question.testCases) {
+        for (let i = 0; i < question.testCases.length; i++) {
+            const testCase = question.testCases[i];
             try {
-                console.log(`📝 Running test case: Input = ${testCase.input}`);
+                console.log(`📝 Running test case ${i + 1}: Input = ${testCase.input}`);
                 const result = await executeCode(code, testCase.input, language);
                 console.log(`✅ Output: ${result.trim()}, Expected: ${testCase.expectedOutput.trim()}`);
 
-                if (result.trim() !== testCase.expectedOutput.trim()) {
+                // Normalize both outputs by:
+                // 1. Trimming whitespace
+                // 2. Replacing multiple spaces with single space
+                // 3. Normalizing line endings
+                const normalizedResult = result
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/\r\n/g, '\n')
+                    .replace(/\n/g, ' ');
+                const normalizedExpected = testCase.expectedOutput
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/\r\n/g, '\n')
+                    .replace(/\n/g, ' ');
+
+                const passed = normalizedResult === normalizedExpected;
+                testCaseResults.push({
+                    testCase: i + 1,
+                    passed,
+                    input: testCase.input,
+                    expected: testCase.expectedOutput.trim(),
+                    actual: result.trim()
+                });
+
+                if (!passed) {
                     verdict = "Wrong Answer";
                     pointsAwarded = 0;
+                    errorDetails = `Test Case ${i + 1} Failed\nExpected: "${testCase.expectedOutput.trim()}"\nGot: "${result.trim()}"`;
                     break;
                 }
             } catch (error) {
@@ -88,6 +118,12 @@ exports.submitCode = async (req, res) => {
                 verdict = error.verdict || "Runtime Error";
                 errorDetails = error.error || error.message || "Unknown error";
                 pointsAwarded = 0;
+                testCaseResults.push({
+                    testCase: i + 1,
+                    passed: false,
+                    input: testCase.input,
+                    error: error.verdict || "Runtime Error"
+                });
                 break;
             }
         }
@@ -103,13 +139,14 @@ exports.submitCode = async (req, res) => {
             language,
             status: verdict,
             pointsAwarded: verdict === "Accepted" ? pointsAwarded : 0,
-            errorDetails
+            errorDetails,
+            isPracticeMode
         });
 
         await submission.save();
 
-        // If the answer is correct, update user's points with penalty applied
-        if (verdict === "Accepted") {
+        // If the answer is correct and not in practice mode, update user's points with penalty applied
+        if (verdict === "Accepted" && !isPracticeMode) {
             // Apply penalty to points
             const adjustedPoints = Math.ceil(pointsAwarded * (100 - penaltyPercentage) / 100);
             console.log(`Original points: ${pointsAwarded}, Penalty: ${penaltyPercentage}%, Adjusted points: ${adjustedPoints}`);
@@ -153,42 +190,38 @@ exports.submitCode = async (req, res) => {
                     await user.save();
                 }
             }
-
-            // Return success with adjusted points
-            res.json({ 
-                success: true, 
-                verdict,
-                pointsAwarded: adjustedPoints,
-                penalty: penaltyPercentage > 0 ? {
-                    percentage: penaltyPercentage,
-                    originalPoints: pointsAwarded,
-                    deduction: pointsAwarded - adjustedPoints
-                } : null,
-                errorDetails
-            });
-        } else {
-            // For wrong answers, just return the verdict
-            res.json({ 
-                success: true, 
-                verdict, 
-                pointsAwarded: 0,
-                attempts: previousAttempts + 1,
-                penalty: previousAttempts > 0 ? {
-                    nextPenaltyPercentage: Math.min((previousAttempts + 1) * 10, 50),
-                    attempts: previousAttempts + 1
-                } : null,
-                errorDetails
-            });
         }
+
+        // Calculate next penalty percentage for wrong submissions
+        const nextPenaltyPercentage = alreadySolved ? 0 : Math.min((previousAttempts + 1) * 10, 50);
+
+        res.json({
+            success: true,
+            submission: {
+                status: verdict,
+                pointsAwarded: verdict === "Accepted" ? pointsAwarded : 0,
+                errorDetails,
+                isPracticeMode,
+                attempts: previousAttempts + 1,
+                testCaseResults,
+                penalty: {
+                    percentage: penaltyPercentage,
+                    nextPenaltyPercentage: nextPenaltyPercentage,
+                    originalPoints: pointsAwarded,
+                    deduction: verdict === "Accepted" ? Math.ceil(pointsAwarded * penaltyPercentage / 100) : 0
+                }
+            }
+        });
+    }
     } catch (error) {
-        console.error("❌ Submission Error:", error);
+        console.error('Error submitting code:', error);
         res.status(500).json({ 
             success: false, 
             message: "Server error", 
-            error: error.message || error.toString()
+            error: error.message 
         });
     }
-};
+}
 
 exports.runCode = async (req, res) => {
     try {

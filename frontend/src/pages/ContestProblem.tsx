@@ -125,7 +125,7 @@ const ContestProblem: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -133,10 +133,10 @@ const ContestProblem: React.FC = () => {
   if (!question || !contest) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/20 border border-destructive text-destructive-foreground px-4 py-3 rounded">
           <p>Problem not found</p>
         </div>
-        <Link to={`/contest/${contestId}`} className="mt-4 inline-block text-blue-600 hover:underline">
+        <Link to={`/contest/${contestId}`} className="mt-4 inline-block text-primary hover:text-primary/80">
           Back to Contest
         </Link>
       </div>
@@ -147,16 +147,16 @@ const ContestProblem: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Contest and problem navigation */}
       <div className="mb-6">
-        <div className="flex items-center text-sm text-gray-500 mb-2">
-          <Link to="/contests" className="hover:text-blue-600">Contests</Link>
+        <div className="flex items-center text-sm text-muted-foreground mb-2">
+          <Link to="/contests" className="hover:text-primary">Contests</Link>
           <span className="mx-2">›</span>
-          <Link to={`/contest/${contestId}`} className="hover:text-blue-600">{contest.name}</Link>
+          <Link to={`/contest/${contestId}`} className="hover:text-primary">{contest.name}</Link>
           <span className="mx-2">›</span>
-          <span className="text-gray-900">{question.title}</span>
+          <span className="text-foreground">{question.title}</span>
         </div>
         
         {!isContestActive() && (
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+          <div className="bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-400 p-4 mb-4">
             <p className="font-bold">Contest {new Date() < new Date(contest.startTime) ? 'has not started yet' : 'has ended'}</p>
             <p>
               {new Date() < new Date(contest.startTime) 
@@ -170,17 +170,17 @@ const ContestProblem: React.FC = () => {
       {/* Problem header */}
       <div className="mb-8">
         <div className="flex justify-between items-start">
-          <h1 className="text-3xl font-bold">{question.title}</h1>
+          <h1 className="text-3xl font-bold text-foreground">{question.title}</h1>
           <span className={`
             px-3 py-1 rounded-full text-sm font-medium
-            ${question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
-              question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-              'bg-red-100 text-red-800'}
+            ${question.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' : 
+              question.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' : 
+              'bg-destructive/20 text-destructive-foreground'}
           `}>
             {question.difficulty}
           </span>
         </div>
-        <div className="mt-2 text-gray-500">
+        <div className="mt-2 text-muted-foreground">
           <span className="mr-4">{question.points} points</span>
         </div>
       </div>
@@ -188,27 +188,27 @@ const ContestProblem: React.FC = () => {
       {/* Problem description */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div className="lg:col-span-2 order-2 lg:order-1">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
-            <div className="prose max-w-none">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">Description</h2>
+            <div className="prose max-w-none text-foreground">
               <p className="whitespace-pre-wrap">{question.description}</p>
             </div>
             
             {question.testCases && question.testCases.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-3">Examples</h3>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Examples</h3>
                 <div className="space-y-4">
                   {question.testCases.map((testCase, index) => (
-                    <div key={index} className="border border-gray-200 rounded-md p-4">
+                    <div key={index} className="border border-border rounded-md p-4">
                       <div className="mb-2">
-                        <span className="font-medium">Input:</span>
-                        <pre className="mt-1 bg-gray-50 p-2 rounded-md overflow-x-auto whitespace-pre-wrap">
+                        <span className="font-medium text-foreground">Input:</span>
+                        <pre className="mt-1 bg-muted p-2 rounded-md overflow-x-auto whitespace-pre-wrap text-foreground">
                           {testCase.input}
                         </pre>
                       </div>
                       <div>
-                        <span className="font-medium">Expected Output:</span>
-                        <pre className="mt-1 bg-gray-50 p-2 rounded-md overflow-x-auto whitespace-pre-wrap">
+                        <span className="font-medium text-foreground">Expected Output:</span>
+                        <pre className="mt-1 bg-muted p-2 rounded-md overflow-x-auto whitespace-pre-wrap text-foreground">
                           {testCase.expectedOutput}
                         </pre>
                       </div>

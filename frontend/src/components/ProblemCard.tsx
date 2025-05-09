@@ -9,9 +9,9 @@ interface ProblemCardProps {
 }
 
 const difficultyColors = {
-  'Easy': 'text-green-600 bg-green-50',
-  'Medium': 'text-amber-600 bg-amber-50',
-  'Hard': 'text-red-600 bg-red-50',
+  'Easy': 'text-green-400 bg-green-500/20',
+  'Medium': 'text-yellow-400 bg-yellow-500/20',
+  'Hard': 'text-destructive-foreground bg-destructive/20',
 };
 
 const ProblemCard: React.FC<ProblemCardProps> = ({ problem }) => {
@@ -28,7 +28,7 @@ const ProblemCard: React.FC<ProblemCardProps> = ({ problem }) => {
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
               {isSolved ? (
-                <CheckCircle2 size={20} className="text-green-600" />
+                <CheckCircle2 size={20} className="text-green-400" />
               ) : (
                 <Circle size={20} className="text-muted-foreground/60" />
               )}

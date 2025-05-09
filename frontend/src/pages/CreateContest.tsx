@@ -294,16 +294,16 @@ const CreateContest: React.FC = () => {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Create New Contest</h1>
+      <h1 className="text-3xl font-bold mb-6 text-foreground">Create New Contest</h1>
       
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Contest Details Section */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Contest Details</h2>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Contest Details</h2>
           
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">
                 Contest Name *
               </label>
               <input
@@ -311,13 +311,13 @@ const CreateContest: React.FC = () => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
                 Description
               </label>
               <textarea
@@ -325,13 +325,13 @@ const CreateContest: React.FC = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="startTime" className="block text-sm font-medium text-muted-foreground mb-1">
                   Start Time *
                 </label>
                 <input
@@ -339,13 +339,13 @@ const CreateContest: React.FC = () => {
                   id="startTime"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                   required
                 />
               </div>
               
               <div>
-                <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="duration" className="block text-sm font-medium text-muted-foreground mb-1">
                   Duration (hours) *
                 </label>
                 <input
@@ -355,15 +355,15 @@ const CreateContest: React.FC = () => {
                   onChange={(e) => setDuration(e.target.value)}
                   min="0.5"
                   step="0.5"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                   required
                 />
               </div>
             </div>
             
             {startTime && (
-              <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
-                <p className="text-sm text-blue-800">
+              <div className="bg-primary/10 p-3 rounded-md border border-primary/20">
+                <p className="text-sm text-primary">
                   <span className="font-semibold">Contest End Time:</span> {getEndTimeString()}
                 </p>
               </div>
@@ -372,16 +372,16 @@ const CreateContest: React.FC = () => {
         </div>
         
         {/* Questions Section */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Contest Questions</h2>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Contest Questions</h2>
           
           {questions.length === 0 ? (
-            <div className="text-center py-6 bg-gray-50 rounded-md border border-gray-100">
-              <p className="text-gray-500">No questions added yet</p>
+            <div className="text-center py-6 bg-muted rounded-md border border-border">
+              <p className="text-muted-foreground">No questions added yet</p>
               <button
                 type="button"
                 onClick={() => setEditingQuestion(true)}
-                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 Add Your First Question
               </button>
@@ -391,36 +391,36 @@ const CreateContest: React.FC = () => {
               {questions.map((question) => (
                 <div 
                   key={question.id} 
-                  className="border border-gray-200 rounded-md p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="border border-border rounded-md p-4 bg-muted hover:bg-muted/80 transition-colors"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-lg">{question.title}</h3>
+                      <h3 className="font-medium text-lg text-foreground">{question.title}</h3>
                       <div className="flex space-x-3 mt-1 text-sm">
                         <span className={`
                           px-2 py-0.5 rounded-full 
-                          ${question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
-                            question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-red-100 text-red-800'}
+                          ${question.difficulty === 'Easy' ? 'bg-green-500/10 text-green-400' : 
+                            question.difficulty === 'Medium' ? 'bg-yellow-500/10 text-yellow-400' : 
+                            'bg-red-500/10 text-red-400'}
                         `}>
                           {question.difficulty}
                         </span>
-                        <span className="text-gray-600">{question.points} points</span>
-                        <span className="text-gray-600">{question.testCases.length} test cases</span>
+                        <span className="text-muted-foreground">{question.points} points</span>
+                        <span className="text-muted-foreground">{question.testCases.length} test cases</span>
                       </div>
                     </div>
                     <div className="flex space-x-2">
                       <button
                         type="button"
                         onClick={() => editQuestion(question)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-primary hover:text-primary/80"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => removeQuestion(question.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         Remove
                       </button>
@@ -433,7 +433,7 @@ const CreateContest: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setEditingQuestion(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   Add Another Question
                 </button>
@@ -456,16 +456,16 @@ const CreateContest: React.FC = () => {
       
       {/* Question Modal */}
       {editingQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 {currentQuestion.id ? 'Edit Question' : 'Add New Question'}
               </h2>
               
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="questionTitle" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="questionTitle" className="block text-sm font-medium text-muted-foreground mb-1">
                     Question Title *
                   </label>
                   <input
@@ -473,13 +473,13 @@ const CreateContest: React.FC = () => {
                     id="questionTitle"
                     value={currentQuestion.title}
                     onChange={(e) => setCurrentQuestion({...currentQuestion, title: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="questionDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="questionDescription" className="block text-sm font-medium text-muted-foreground mb-1">
                     Description *
                   </label>
                   <textarea
@@ -487,14 +487,14 @@ const CreateContest: React.FC = () => {
                     value={currentQuestion.description}
                     onChange={(e) => setCurrentQuestion({...currentQuestion, description: e.target.value})}
                     rows={5}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                     required
                   />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="questionDifficulty" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="questionDifficulty" className="block text-sm font-medium text-muted-foreground mb-1">
                       Difficulty
                     </label>
                     <select
@@ -504,7 +504,7 @@ const CreateContest: React.FC = () => {
                         ...currentQuestion,
                         difficulty: e.target.value as 'Easy' | 'Medium' | 'Hard'
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                     >
                       <option value="Easy">Easy</option>
                       <option value="Medium">Medium</option>
@@ -513,7 +513,7 @@ const CreateContest: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label htmlFor="questionPoints" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="questionPoints" className="block text-sm font-medium text-muted-foreground mb-1">
                       Points
                     </label>
                     <input
@@ -525,7 +525,7 @@ const CreateContest: React.FC = () => {
                         points: parseInt(e.target.value) || 0
                       })}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground"
                     />
                   </div>
                 </div>
@@ -533,40 +533,40 @@ const CreateContest: React.FC = () => {
                 {/* Test Cases Section */}
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Test Cases</h3>
+                    <h3 className="font-medium text-foreground">Test Cases</h3>
                     <button
                       type="button"
                       onClick={() => setEditingTestCase(true)}
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm text-primary hover:text-primary/80"
                     >
                       Add Test Case
                     </button>
                   </div>
                   
                   {currentQuestion.testCases.length === 0 ? (
-                    <div className="text-center py-4 bg-gray-50 rounded-md border border-gray-100">
-                      <p className="text-gray-500">No test cases added yet</p>
+                    <div className="text-center py-4 bg-muted rounded-md border border-border">
+                      <p className="text-muted-foreground">No test cases added yet</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       {currentQuestion.testCases.map((testCase, index) => (
-                        <div key={testCase.id} className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                        <div key={testCase.id} className="border border-border rounded-md p-3 bg-muted">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h4 className="font-medium">Test Case #{index + 1}</h4>
+                              <h4 className="font-medium text-foreground">Test Case #{index + 1}</h4>
                             </div>
                             <div className="flex space-x-2">
                               <button
                                 type="button"
                                 onClick={() => editTestCase(testCase)}
-                                className="text-xs text-blue-600 hover:text-blue-800"
+                                className="text-xs text-primary hover:text-primary/80"
                               >
                                 Edit
                               </button>
                               <button
                                 type="button"
                                 onClick={() => removeTestCase(testCase.id)}
-                                className="text-xs text-red-600 hover:text-red-800"
+                                className="text-xs text-destructive hover:text-destructive/80"
                               >
                                 Remove
                               </button>
@@ -574,14 +574,14 @@ const CreateContest: React.FC = () => {
                           </div>
                           <div className="mt-2 text-sm">
                             <div>
-                              <span className="font-medium">Input:</span>
-                              <pre className="mt-1 bg-gray-100 p-2 rounded-md overflow-x-auto whitespace-pre-wrap">
+                              <span className="font-medium text-foreground">Input:</span>
+                              <pre className="mt-1 bg-background p-2 rounded-md overflow-x-auto whitespace-pre-wrap text-foreground">
                                 {testCase.input}
                               </pre>
                             </div>
                             <div className="mt-2">
-                              <span className="font-medium">Expected Output:</span>
-                              <pre className="mt-1 bg-gray-100 p-2 rounded-md overflow-x-auto whitespace-pre-wrap">
+                              <span className="font-medium text-foreground">Expected Output:</span>
+                              <pre className="mt-1 bg-background p-2 rounded-md overflow-x-auto whitespace-pre-wrap text-foreground">
                                 {testCase.expectedOutput}
                               </pre>
                             </div>
@@ -596,14 +596,14 @@ const CreateContest: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEditingQuestion(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-4 py-2 border border-border rounded-md text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={addQuestion}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
                     {currentQuestion.id ? 'Update Question' : 'Add Question'}
                   </button>
@@ -616,16 +616,16 @@ const CreateContest: React.FC = () => {
       
       {/* Test Case Modal */}
       {editingTestCase && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full">
             <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-xl font-semibold mb-4 text-foreground">
                 {currentTestCase.id ? 'Edit Test Case' : 'Add New Test Case'}
               </h2>
               
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="testInput" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="testInput" className="block text-sm font-medium text-muted-foreground mb-1">
                     Input *
                   </label>
                   <textarea
@@ -633,16 +633,16 @@ const CreateContest: React.FC = () => {
                     value={currentTestCase.input}
                     onChange={(e) => setCurrentTestCase({...currentTestCase, input: e.target.value})}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground font-mono"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Enter input exactly as it would be provided to the program
                   </p>
                 </div>
                 
                 <div>
-                  <label htmlFor="testOutput" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="testOutput" className="block text-sm font-medium text-muted-foreground mb-1">
                     Expected Output *
                   </label>
                   <textarea
@@ -650,10 +650,10 @@ const CreateContest: React.FC = () => {
                     value={currentTestCase.expectedOutput}
                     onChange={(e) => setCurrentTestCase({...currentTestCase, expectedOutput: e.target.value})}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-foreground font-mono"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Enter expected output exactly as it should be produced by a correct solution
                   </p>
                 </div>
@@ -662,14 +662,14 @@ const CreateContest: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEditingTestCase(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-4 py-2 border border-border rounded-md text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={addTestCase}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
                     {currentTestCase.id ? 'Update Test Case' : 'Add Test Case'}
                   </button>

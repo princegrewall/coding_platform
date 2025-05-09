@@ -13,7 +13,8 @@ const SubmissionSchema = new mongoose.Schema({
     },
     pointsAwarded: { type: Number, default: 0 },
     errorDetails: { type: String, default: null },
-    submittedAt: { type: Date, default: Date.now }
+    submittedAt: { type: Date, default: Date.now },
+    isPracticeMode: { type: Boolean, default: false }
 });
 
 // Add index to improve leaderboard queries
