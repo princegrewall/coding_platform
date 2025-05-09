@@ -22,7 +22,7 @@ A full-stack web-based coding platform built to help users practice coding probl
 **Coding Platform** is a local web application that allows users to:
 
 - Solve programming problems
-- Execute code securely in a local sandbox
+- Execute code securely
 - Participate in contests
 - Compete on leaderboards
 
@@ -34,7 +34,7 @@ Perfect for self-hosted learning environments, classrooms, or personal practice.
 
 - 👤 **User Authentication** (Register/Login)
 - 🧠 **Problem Solving** with in-browser code editor
-- ⚙️ **Code Execution Sandbox** (Local environment)
+- ⚙️ **Code Execution** (Local environment)
 - 🏁 **Contests** with countdown and scoring
 - 🏆 **Leaderboards** and user ranking system
 
@@ -42,11 +42,10 @@ Perfect for self-hosted learning environments, classrooms, or personal practice.
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React.js, Redux
+- **Frontend**: React.js, Tailwind CSS
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB
 - **Authentication**: JSON Web Tokens (JWT)
-- **Code Execution**: Local sandbox
 - **Development Tool**: Nodemon for auto-restarting backend server
 
 ---
@@ -137,7 +136,6 @@ coding_platform/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
-│   │   ├── redux/
 │   │   └── App.js
 └── README.md
 ```
